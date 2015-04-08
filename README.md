@@ -84,13 +84,18 @@ These provide actual functionality in the chain.
  	 - *substitute for `not` because `not` is a reserved keyword in C++*
  	 - `expect<int>(3).to->never->equal->(3)->getResults();`
 
- - `equal(Te value)`/`eql(Te value)`: Asserts that the target is equal (==) to `value`.
+ - `equal(Te value)`: Asserts that the target is equal (==) to `value`.
+ 	 - Aliases: `eql(...)`
  - `closeTo(double expected, double tolerance)`: Asserts that the target is equal to `expected`, to within a +/- `tolerance` range.
  - `within(double lower, double upper)`: Asserts that the target is within a range.
- - `above(double value)`/`gt(double value)`/`greaterThan(value)`: Asserts that the target is greater than `value`.
- - `least(double value)`/`gte(double value)`: Asserts that the target is greater than or equal to `value`.
- - `below(double value)`/`lt(double value)`/`lessThan(value)`: Asserts that the target is less than `value`.
- - `most(double value)`/`lte(double value)`: Asserts that the target is less than or equal to `value`.
+ - `above(double value)`: Asserts that the target is greater than `value`.
+ 	 - Aliases: `gt(...)`, `greaterThan(...)`
+ - `least(double value)`: Asserts that the target is greater than or equal to `value`.
+ 	 - Aliases: `gte(...)`
+ - `below(double value)`: Asserts that the target is less than `value`.
+ 	 - Aliases: `lt(...)`, `lessThan(...)`
+ - `most(double value)`: Asserts that the target is less than or equal to `value`.
+ 	 - Aliases: `lte(...)`
  - `satisfy`: Asserts that the target passes a given truth test.
  	 - `satisfy(function<bool, Ta> testFunc)`
  	 - `satisfy(function<bool, Ta> testFunc, function<PlatformString, Ta, expectFlags> failMessageFunc)`
@@ -98,7 +103,7 @@ These provide actual functionality in the chain.
 
 
 
- # Options:
+# Options:
 
   - `Macchiato::MacchiatoSettings`
  	 - `useAnsiColor`: bool - whether to add ANSI escape codes for colored text. (Supported in many consoles)
