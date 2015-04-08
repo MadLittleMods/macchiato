@@ -115,6 +115,8 @@ These provide actual functionality in the chain.
 
 We strive to make the API syntax the same between Macchiato and Mocha. Some sacrifices had to be made for C++.
 
+We currently do not support the full Mocha.js API. Missing TDD and some BDD `expect` members.
+
  - Some member names used in Mocha are reserved keywords in C++ which needed to be renamed
  	 - `then`(Macchiato C++) is equivalent to `and`(Mocha JS)
  	 - `never`(Macchiato C++) is equivalent to `not`(Mocha JS)
