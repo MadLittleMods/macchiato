@@ -2,16 +2,38 @@
 
 [Mocha](http://mochajs.org/)/[Chai](http://chaijs.com/) inspired C++ test framework for desktop and Arduino.
 
-## Latest Version: 0.6.0
+![](http://i.imgur.com/fhGebYm.png)
+
+## Latest Version: 0.6.1
 
 # How to use/include
 
 Just add the `macchiato` folder to your include path.
 
 ```
+#include <iostream>
 #include "Macchiato.h"
 // Optionally use the namespace to do `describe` instead of `Macchiato::describe`, etc
 using namespace Macchiato;
+
+describe("Foo", [&]() {
+	describe("with bar", [&]() {
+		it("should baz", [&]() {
+			return expect<bool>(true).to->equal(true)->getResult();
+		});
+
+		// This test will fail because it is false != true
+		it("should qux", [&]() {
+			return expect<bool>(false).to->equal(true)->getResult();
+		});
+
+		// An `it` call without a callback is considered "pending"
+		// In other words, the test still needs to written/implemented.
+		it("should norf");
+	});
+});
+
+std::cout << Macchiato::getResultantTestOutput() << std::endl;
 ```
 
 Macchiato is also available as a header-only library in `macchiato-header-only/MacchiatoHeaderOnly.h`. This is a no-dependency/fully-independent version of Macchiato. We simply concatenate the dependencies together and remove the `#include *.h` to the h file dependencies
@@ -32,7 +54,9 @@ Macchiato uses a `PlatformString` type that is made to be compatible on many pla
 # API
 
  - `describe(PlatformString description, function<void> callback)`
- - `it(PlatformString testDescription, function<void> callback)`
+ 	 - `describe` can be nested as many times as you would like. Each describe will indent the output inside.
+ - `it(PlatformString testDescription, function<Macchiato::TestResult> callback)`
+ 	 - Call `it` inside of `describe` blocks
  - `expect<Ta, Te=Ta>(Ta actual)`: (BDD)
 
 ```
@@ -145,6 +169,10 @@ describe("Some numbers", [&]() {
 
   - `Macchiato::MacchiatoSettings`
  	 - `useAnsiColor`: bool - whether to add ANSI escape codes for colored text. (Supported in many consoles)
+ 	 	 - Default: `true`
+ 	 	 - If you are wanting to have colored Text in Windows (CMD prompt), follow this guide [*Using libuv with Windows and Visual Studio: Getting Started* by Eric Eastwood](http://ericeastwood.com/blog/24/using-libuv-with-windows-and-visual-studio-getting-started)
+ 	 - `indentToken`: PlatformString - The indentation string/token every time we go a level deeper
+ 	 	 - Default: `"\t"`
 
 
 

@@ -1,5 +1,5 @@
 // Macchiato
-// v0.6.0
+// v0.6.1
 // https://github.com/MadLittleMods/macchiato
 //
 // Mocha.js inspired testing for C++
@@ -306,7 +306,7 @@ struct PlatformString {
 
 
 // Macchiato
-// v0.6.0
+// v0.6.1
 // https://github.com/MadLittleMods/macchiato
 //
 // Mocha.js inspired testing for C++
@@ -354,6 +354,7 @@ namespace Macchiato {
 
 	struct _MacchiatoSettings {
 		bool useAnsiColor = true;
+		PlatformString indentToken = "\t";
 	};
 	_MacchiatoSettings MacchiatoSettings;
 
@@ -370,7 +371,7 @@ namespace Macchiato {
 		PlatformString generateCurrentDepthString() {
 			PlatformString depthString = "";
 			for(unsigned int i = 0; i < currentDepth-1; i++) {
-				depthString += "\t";
+				depthString += MacchiatoSettings.indentToken;
 			}
 
 			return depthString;
@@ -378,7 +379,7 @@ namespace Macchiato {
 		PlatformString generateCurrentChildDepthString() {
 			PlatformString childDepthString = "";
 			for(unsigned int i = 0; i < currentDepth; i++) {
-				childDepthString += "\t";
+				childDepthString += MacchiatoSettings.indentToken;
 			}
 
 			return childDepthString;
@@ -496,7 +497,7 @@ namespace Macchiato {
 		PlatformString message = _MacchiatoUtil.generateCurrentChildDepthString() + 
 			(testResult.didPass ? _MacchiatoUtil.wrapInAnsiGreen("Pass") : _MacchiatoUtil.wrapInAnsiRed("Fail")) + ": " + 
 			testDescription + 
-			(testResult.didPass ? "" : "\n" + _MacchiatoUtil.generateCurrentChildDepthString() + "\t" + testResult.message) + 
+			(testResult.didPass ? "" : "\n" + _MacchiatoUtil.generateCurrentChildDepthString() + MacchiatoSettings.indentToken + testResult.message) + 
 			"\n";
 
 		_MacchiatoUtil.log(message);
