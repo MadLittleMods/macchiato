@@ -2,7 +2,7 @@
 
 [Mocha](http://mochajs.org/)/[Chai](http://chaijs.com/) inspired C++ test framework for desktop and Arduino.
 
-# Latest Version: 0.5.1
+## Latest Version: 0.6.0
 
 # How to use/include
 
@@ -14,7 +14,7 @@ Just add the `macchiato` folder to your include path.
 using namespace Macchiato;
 ```
 
-Macchiato is also available as a header-only library in `macchiato-header-only/MacchiatoHeaderOnly.h`. This is a no dependency/full independent version of Macchiato. We simply concatenate the files together and remove the `#include *.h` to the h file dependencies
+Macchiato is also available as a header-only library in `macchiato-header-only/MacchiatoHeaderOnly.h`. This is a no-dependency/fully-independent version of Macchiato. We simply concatenate the dependencies together and remove the `#include *.h` to the h file dependencies
 
 
 ## Details:
@@ -99,7 +99,45 @@ These provide actual functionality in the chain.
  - `satisfy`: Asserts that the target passes a given truth test.
  	 - `satisfy(function<bool, Ta> testFunc)`
  	 - `satisfy(function<bool, Ta> testFunc, function<PlatformString, Ta, expectFlags> failMessageFunc)`
+ 	 - `satisfy(Macchiato::MacchiatoPlugin plugin, Te expected)`
  	 - `satisfy(bool testResultBool, PlatformString failMessage)`
+
+## Plugins
+
+Plugin-like functionality is supported via `Macchiato::MacchiatoPlugin` which can be used in `expect().satisify(Macchiato::MacchiatoPlugin plugin, Te expected)`.
+
+````
+MacchiatoPlugin(
+	function<bool, Ta, Te> testFunc,
+	function<PlatformString, Ta, Te, testFlags> failMessageFunc
+);
+```
+
+### Example
+
+```
+#include "Macchiato.h"
+using namespace Macchiato;
+
+// For `fmod` (used in the example plugin)
+#include <math.h>
+
+auto doesDivideEvenlyIntoPlugin = MacchiatoPlugin<double>(
+	[&](double actual, double expected) {
+		return fmod(expected, actual) == 0;
+	},
+	[&](double actual, double expected, testFlags flags) {
+		return PlatformString("Expected ") + PlatformString(actual) + " to " + (flags.negate ? "not " : "") + "divide evenly into " + PlatformString(expected) + " but got a remainder of " + PlatformString(fmod(expected, actual));
+	}
+);
+
+describe("Some numbers", [&]() {
+	it("should divide evenly into other numbers", [&]() {
+		return expect<double>(2).to->satisfy(doesDivideEvenlyIntoPlugin, 10)->getResult();
+	});
+});
+```
+
 
 
 

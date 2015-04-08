@@ -1,5 +1,5 @@
 // Macchiato
-// v0.5.1
+// v0.6.0
 // https://github.com/MadLittleMods/macchiato
 //
 // Mocha.js inspired testing for C++
@@ -305,10 +305,8 @@ struct PlatformString {
 
 
 
-
-
 // Macchiato
-// v0.5.1
+// v0.6.0
 // https://github.com/MadLittleMods/macchiato
 //
 // Mocha.js inspired testing for C++
@@ -325,6 +323,8 @@ struct PlatformString {
 // fabs
 #include <cmath>
 
+//#include "functionSig.h"
+//#include "PlatformString.h"
 
 
 namespace Macchiato {
@@ -333,6 +333,23 @@ namespace Macchiato {
 		PlatformString message;
 		bool didPass = true;
 	};
+
+	struct testFlags {
+		bool negate = false;
+	};
+
+	template <typename Ta, typename Te = Ta>
+	struct MacchiatoPlugin {
+		function<bool, Ta, Te> testFunc;
+		function<PlatformString, Ta, Te, testFlags> failMessageFunc;
+
+		MacchiatoPlugin(
+			function<bool, Ta, Te> testFunc,
+			function<PlatformString, Ta, Te, testFlags> failMessageFunc
+		) : testFunc(testFunc), failMessageFunc(failMessageFunc) { };
+	};
+
+
 
 
 	struct _MacchiatoSettings {
@@ -486,12 +503,7 @@ namespace Macchiato {
 	};
 
 
-
-
 	// expect: BDD
-	struct expectFlags {
-		bool negate = false;
-	};
 	template <typename Ta, typename Te = Ta>
 	struct expect {
 		
@@ -597,9 +609,15 @@ namespace Macchiato {
 				PlatformString("Expected ") + PlatformString(this->actual) + " to " + (this->flags.negate ? "not " : "") + "satisfy the given test"
 			);
 		};
-		expect* satisfy(function<bool, Ta> testFunc, function<PlatformString, Ta, expectFlags> failMessageFunc) {
+		expect* satisfy(function<bool, Ta> testFunc, function<PlatformString, Ta, testFlags> failMessageFunc) {
 			bool testResultBool = testFunc(this->actual);
 			PlatformString failMessage = failMessageFunc(this->actual, this->flags);
+			
+			return this->satisfy(testResultBool, failMessage);
+		};
+		expect* satisfy(MacchiatoPlugin<Ta, Te> plugin, Te expected) {
+			bool testResultBool = plugin.testFunc(this->actual, expected);
+			PlatformString failMessage = plugin.failMessageFunc(this->actual, expected, this->flags);
 			
 			return this->satisfy(testResultBool, failMessage);
 		};
@@ -681,7 +699,7 @@ namespace Macchiato {
 
 		protected: 
 			Ta actual;
-			expectFlags flags;
+			testFlags flags;
 			
 			TestResult testResult;
 			
