@@ -1,6 +1,8 @@
 # Macchiato
 
-[Mocha](http://mochajs.org/)/[Chai](http://chaijs.com/) inspired C++ test framework for desktop and Arduino.
+C++ test framework for desktop and Arduino.
+
+Macchiato strives to be as close and familiar as [Mocha](http://mochajs.org/)/[Chai](http://chaijs.com/).
 
 ![](http://i.imgur.com/fhGebYm.png)
 
@@ -19,12 +21,12 @@ using namespace Macchiato;
 describe("Foo", [&]() {
 	describe("with bar", [&]() {
 		it("should baz", [&]() {
-			return expect<bool>(true).to->equal(true)->getResult();
+			return expect(true).to->equal(true)->getResult();
 		});
 
 		// This test will fail because it is false != true
 		it("should qux", [&]() {
-			return expect<bool>(false).to->equal(true)->getResult();
+			return expect(false).to->equal(true)->getResult();
 		});
 
 		// An `it` call without a callback is considered "pending"
@@ -57,7 +59,7 @@ Macchiato uses a `PlatformString` type that is made to be compatible on many pla
  	 - `describe` can be nested as many times as you would like. Each describe will indent the output inside.
  - `it(PlatformString testDescription, function<Macchiato::TestResult> callback)`
  	 - Call `it` inside of `describe` blocks
- - `expect<Ta, Te=Ta>(Ta actual)`: (BDD)
+ - `expect(Ta actual)`: (BDD)
 
 ```
 #include <iostream>
@@ -66,7 +68,7 @@ using namespace Macchiato;
 
 describe("Box", [&]() {
 	it("should have 6 faces", [&]() {
-		return expect<Box>(MyBox().getNumFaces())).to->equal(6)->getResult();
+		return expect(MyBox().getNumFaces())).to->equal(6)->getResult();
 	});
 });
 
@@ -79,7 +81,7 @@ std::cout << Macchiato::getResultantTestOutput() << std::endl;
 Behaviour driven development (BDD)
 
  - `expect`
- 	 - `expect<Ta, Te=Ta>(actual).then->then->then->equal(expected)->getResults();`
+ 	 - `expect(actual).then->then->then->equal(expected)->getResults();`
 
 ## Language Chains
 
@@ -106,7 +108,7 @@ These provide actual functionality in the chain.
 
  - `never`: Negates any of assertions following in the chain.
  	 - *substitute for `not` because `not` is a reserved keyword in C++*
- 	 - `expect<int>(3).to->never->equal->(3)->getResults();`
+ 	 - `expect(3).to->never->equal->(3)->getResults();`
 
  - `equal(Te value)`: Asserts that the target is equal (==) to `value`.
  	 - Aliases: `eql(...)`
@@ -157,7 +159,7 @@ auto doesDivideEvenlyIntoPlugin = MacchiatoPlugin<double>(
 
 describe("Some numbers", [&]() {
 	it("should divide evenly into other numbers", [&]() {
-		return expect<double>(2).to->satisfy(doesDivideEvenlyIntoPlugin, 10)->getResult();
+		return expect(2.0).to->satisfy(doesDivideEvenlyIntoPlugin, 10.0)->getResult();
 	});
 });
 ```
@@ -191,4 +193,4 @@ We currently do not support the full Mocha.js API. Missing TDD and some BDD `exp
  	 - Mocha JS: `function() { /*...*/ }`
  - Test chaining syntax is different
  	 - Macchiato C++: `expect<int>(3).to->equal(3)->getResults();`
- 	 - Mocha JS: `expeect(3).to.equal(3);`
+ 	 - Mocha JS: `expect(3).to.equal(3);`

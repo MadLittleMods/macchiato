@@ -1,5 +1,5 @@
 // Macchiato
-// v0.6.1
+// v0.6.2
 // https://github.com/MadLittleMods/macchiato
 //
 // Mocha.js inspired testing for C++
@@ -303,10 +303,8 @@ struct PlatformString {
 
 #endif
 
-
-
 // Macchiato
-// v0.6.1
+// v0.6.2
 // https://github.com/MadLittleMods/macchiato
 //
 // Mocha.js inspired testing for C++
@@ -337,6 +335,7 @@ namespace Macchiato {
 	struct testFlags {
 		bool negate = false;
 	};
+
 
 	template <typename Ta, typename Te = Ta>
 	struct MacchiatoPlugin {
@@ -505,16 +504,15 @@ namespace Macchiato {
 
 
 	// expect: BDD
-	template <typename Ta, typename Te = Ta>
-	struct expect {
+	template <typename Ta>
+	struct expect_type {
 		
-		expect(Ta actual) {
-			this->actual = actual;
-		};
+		expect_type(Ta actual) : actual(actual) { };
 		
 
 
-		expect* equal(Te expected) {
+		template <typename Te>
+		expect_type* equal(Te expected) {
 			this->addTestResult(
 				this->actual == expected,
 				PlatformString("Expected ") + PlatformString(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + PlatformString(expected)
@@ -522,14 +520,15 @@ namespace Macchiato {
 			
 			return this;
 		};
-		expect* eql(Te expected) {
+		template <typename Te>
+		expect_type* eql(Te expected) {
 			return this->equal(expected);
 		};
 		
-		expect* closeTo(double expected) {
+		expect_type* closeTo(double expected) {
 			return this->closeTo(expected, 0.0001);
 		};
-		expect* closeTo(double expected, double tolerance) {
+		expect_type* closeTo(double expected, double tolerance) {
 			this->addTestResult(
 				fabs(this->actual - expected) <= tolerance,
 				PlatformString("Expected ") + PlatformString(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + PlatformString(expected) + " within tolerance of " + PlatformString(tolerance)
@@ -538,7 +537,7 @@ namespace Macchiato {
 			return this;
 		};
 
-		expect* within(double lower, double upper) {
+		expect_type* within(double lower, double upper) {
 			this->addTestResult(
 				this->actual > lower && this->actual < upper,
 				PlatformString("Expected ") + PlatformString(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be above " + PlatformString(lower) + " and below " + PlatformString(upper)
@@ -548,7 +547,7 @@ namespace Macchiato {
 		};
 
 
-		expect* above(double expected) {
+		expect_type* above(double expected) {
 			this->addTestResult(
 				this->actual > expected,
 				PlatformString("Expected ") + PlatformString(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than " + PlatformString(expected)
@@ -556,14 +555,14 @@ namespace Macchiato {
 			
 			return this;
 		};
-		expect* gt(double expected) {
+		expect_type* gt(double expected) {
 			return this->above(expected);
 		};
-		expect* greaterThan(double expected) {
+		expect_type* greaterThan(double expected) {
 			return this->above(expected);
 		};
 
-		expect* least(double expected) {
+		expect_type* least(double expected) {
 			this->addTestResult(
 				this->actual >= expected,
 				PlatformString("Expected ") + PlatformString(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than or equal to " + PlatformString(expected)
@@ -571,11 +570,11 @@ namespace Macchiato {
 			
 			return this;
 		};
-		expect* gte(double expected) {
+		expect_type* gte(double expected) {
 			return this->least(expected);
 		};
 
-		expect* below(double expected) {
+		expect_type* below(double expected) {
 			this->addTestResult(
 				this->actual < expected,
 				PlatformString("Expected ") + PlatformString(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be lesser than " + PlatformString(expected)
@@ -583,14 +582,14 @@ namespace Macchiato {
 			
 			return this;
 		};
-		expect* lt(double expected) {
+		expect_type* lt(double expected) {
 			return this->below(expected);
 		};
-		expect* lessThan(double expected) {
+		expect_type* lessThan(double expected) {
 			return this->below(expected);
 		};
 
-		expect* most(double expected) {
+		expect_type* most(double expected) {
 			this->addTestResult(
 				this->actual <= expected,
 				PlatformString("Expected ") + PlatformString(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be less than or equal to " + PlatformString(expected)
@@ -598,11 +597,11 @@ namespace Macchiato {
 			
 			return this;
 		};
-		expect* lte(double expected) {
+		expect_type* lte(double expected) {
 			return this->most(expected);
 		};
 
-		expect* satisfy(function<bool, Ta> testFunc) {
+		expect_type* satisfy(function<bool, Ta> testFunc) {
 			bool testResultBool = testFunc(this->actual);
 			
 			return this->satisfy(
@@ -610,19 +609,20 @@ namespace Macchiato {
 				PlatformString("Expected ") + PlatformString(this->actual) + " to " + (this->flags.negate ? "not " : "") + "satisfy the given test"
 			);
 		};
-		expect* satisfy(function<bool, Ta> testFunc, function<PlatformString, Ta, testFlags> failMessageFunc) {
+		expect_type* satisfy(function<bool, Ta> testFunc, function<PlatformString, Ta, testFlags> failMessageFunc) {
 			bool testResultBool = testFunc(this->actual);
 			PlatformString failMessage = failMessageFunc(this->actual, this->flags);
 			
 			return this->satisfy(testResultBool, failMessage);
 		};
-		expect* satisfy(MacchiatoPlugin<Ta, Te> plugin, Te expected) {
+		template <typename Te>
+		expect_type* satisfy(MacchiatoPlugin<Ta, Te> plugin, Te expected) {
 			bool testResultBool = plugin.testFunc(this->actual, expected);
 			PlatformString failMessage = plugin.failMessageFunc(this->actual, expected, this->flags);
 			
 			return this->satisfy(testResultBool, failMessage);
 		};
-		expect* satisfy(bool testResultBool, PlatformString failMessage) {
+		expect_type* satisfy(bool testResultBool, PlatformString failMessage) {
 			this->addTestResult(
 				testResultBool,
 				failMessage
@@ -635,27 +635,27 @@ namespace Macchiato {
 
 
 		class MemberLogicClass {
-			expect* expectPointer;
-			function<void, expect*> getterFunc;
+			expect_type* expectPointer;
+			function<void, expect_type*> getterFunc;
 			public:
-				MemberLogicClass(expect *i, function<void, expect*> getterFunc) : expectPointer(i), getterFunc(getterFunc) {};
+				MemberLogicClass(expect_type *i, function<void, expect_type*> getterFunc) : expectPointer(i), getterFunc(getterFunc) {};
 				
 				// Setter
-				expect* operator = (const expect i) {
-					return this->expectPointer = (expect*)&i;
+				expect_type* operator = (const expect_type i) {
+					return this->expectPointer = (expect_type*)&i;
 					
 				};
 				// Setter
-				expect* operator = (const expect *i) {
-					return this->expectPointer = (expect*)i;
+				expect_type* operator = (const expect_type *i) {
+					return this->expectPointer = (expect_type*)i;
 				};
 				// Getter
-				expect* operator -> () {
+				expect_type* operator -> () {
 					this->getterFunc(this->expectPointer);
 					return this->expectPointer; 
 				};
 				// Getter
-				operator expect* () const {
+				operator expect_type* () const {
 					this->getterFunc(this->expectPointer);
 					return this->expectPointer;
 				};
@@ -664,7 +664,7 @@ namespace Macchiato {
 
 		// Sets the negate flag when used
 		// expect<int>(3).to->never->equal->(5);
-		MemberLogicClass never{this, [&](expect* expectPointer) {
+		MemberLogicClass never{this, [&](expect_type* expectPointer) {
 			expectPointer->flags.negate = !expectPointer->flags.negate;
 		}};
 
@@ -672,20 +672,20 @@ namespace Macchiato {
 		
 		// Provided as chainable getters to improve the readability of your assertions.
 		// They do not provide testing capabilities.
-		expect* to = this;
-		expect* be = this;
-		expect* been = this;
-		expect* is = this;
-		expect* that = this;
-		expect* which = this;
+		expect_type* to = this;
+		expect_type* be = this;
+		expect_type* been = this;
+		expect_type* is = this;
+		expect_type* that = this;
+		expect_type* which = this;
 		// `and` is a reserved keyword
-		expect* then = this;//expect* and = this;
-		expect* has = this;
-		expect* have = this;
-		expect* with = this;
-		expect* at = this;
-		expect* of = this;
-		expect* same = this;
+		expect_type* then = this;//expect_type* and = this;
+		expect_type* has = this;
+		expect_type* have = this;
+		expect_type* with = this;
+		expect_type* at = this;
+		expect_type* of = this;
+		expect_type* same = this;
 		
 		
 		
@@ -727,6 +727,10 @@ namespace Macchiato {
 		//private:
 	};
 
+	template <typename T>
+	expect_type<T> expect(T&& x) {
+		return { std::forward<T>(x) };
+	};
 
 
 
