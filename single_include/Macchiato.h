@@ -1,5 +1,5 @@
 // Macchiato
-// v0.6.2
+// v0.6.5
 // https://github.com/MadLittleMods/macchiato
 //
 // Mocha.js inspired testing for C++
@@ -16,7 +16,9 @@
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
 
-
+#if defined(ARDUINO)
+#include "Arduino.h"
+#endif
 
 
 
@@ -97,9 +99,8 @@ private:
 
 
 
-
 // PlatformString
-// v0.3.0
+// v0.3.1
 //
 // Requires C++11. Works on the following platforms:
 //		- Most desktop environments
@@ -226,6 +227,8 @@ struct PlatformString {
 #else
 #include <string>
 #include <iostream>
+// std::min, std::max
+#include <algorithm>
 
 struct PlatformString {
 	std::string value;
@@ -303,8 +306,11 @@ struct PlatformString {
 
 #endif
 
+
+
+
 // Macchiato
-// v0.6.2
+// v0.6.5
 // https://github.com/MadLittleMods/macchiato
 //
 // Mocha.js inspired testing for C++
@@ -318,12 +324,15 @@ struct PlatformString {
 #ifndef Macchiato_h
 #define Macchiato_h
 
+#if defined(ARDUINO)
+#include "Arduino.h"
+#endif
+
 // fabs
 #include <cmath>
 
 //#include "functionSig.h"
 //#include "PlatformString.h"
-
 
 namespace Macchiato {
 
@@ -416,12 +425,12 @@ namespace Macchiato {
 			else if(tType == TestResultType::Pending) {
 				this->numTestsPending++;
 			}
-		}
+		};
 
 
 
 
-		PlatformString getResultantOutput() {
+		PlatformString getResultantTestOutput() {
 			PlatformString result = PlatformString(this->resultantOutputString);
 			// Add a small summary at the end
 			result += PlatformString("\n\n") +
@@ -433,6 +442,15 @@ namespace Macchiato {
 			result += "\n";
 
 			return result;
+		};
+
+		void clearTestResults() {
+			this->resultantOutputString = "";
+
+			this->numTestsPassed = 0;
+			this->numTestsFailed = 0;
+			this->numTestsPending = 0;
+
 		};
 
 
@@ -451,8 +469,11 @@ namespace Macchiato {
 
 
 
-	PlatformString getResultantTestOutput() {
-		return _MacchiatoUtil.getResultantOutput();
+	PlatformString GetResultantTestOutput() {
+		return _MacchiatoUtil.getResultantTestOutput();
+	};
+	void ClearTestResults() {
+		_MacchiatoUtil.clearTestResults();
 	};
 
 
@@ -483,7 +504,8 @@ namespace Macchiato {
 		_MacchiatoUtil.logTestResult(_MacchiatoUtil.TestResultType::Pending);
 
 		PlatformString message = _MacchiatoUtil.generateCurrentChildDepthString() +
-			_MacchiatoUtil.wrapInAnsiCyan(PlatformString("----: ") + testDescription);
+			_MacchiatoUtil.wrapInAnsiCyan(PlatformString("----: ") + testDescription) +
+			"\n";
 
 		_MacchiatoUtil.log(message);
 	};
@@ -734,8 +756,135 @@ namespace Macchiato {
 
 
 
+	void MacchiatoParseCLIArgs(int argc, char * const argv[]) {
+		// Some CLI options/flags
+		for(int i = 0; i < argc; i++) {
+			//std::cout << argv[i] << std::endl;
+			if(strcmp(argv[i], "-no-color") == 0 || strcmp(argv[i], "--no-color") == 0) {
+				Macchiato::MacchiatoSettings.useAnsiColor = false;
+			}
+		}
+	};
+
+
 
 }
 
 
+
+#include <vector>
+#if defined(ARDUINO)
+	// We just add a define in case anyone wants to detect it later to avoid multiple declaration errors
+	#ifndef std_vector_arduino_throw_polyfill
+	#define std_vector_arduino_throw_polyfill
+		// via https://forum.pjrc.com/threads/23467-Using-std-vector?p=69787&viewfull=1#post69787
+		namespace std {
+			inline void __throw_bad_alloc() {
+				Serial.println("Unable to allocate memory");
+			}
+
+			inline void __throw_length_error( char const*e ) {
+				Serial.print("Length Error :");
+				Serial.println(e);
+			}
+		}
+	#endif
 #endif
+
+
+// MACCHIATO_RUNTESTS
+// --------------------------------------------
+// --------------------------------------------
+
+// Just a simple way to get a unique name after passing in a name.
+// Concats that name with the line number
+//
+// via: https://github.com/philsquared/Catch/blob/35f4266d0022ed039923fbbba2c4495435ad1465/single_include/catch.hpp#L58
+#define MACCHIATO_INTERNAL_UNIQUE_NAME_LINE2( name, line ) name ## line
+#define MACCHIATO_INTERNAL_UNIQUE_NAME_LINE( name, line ) MACCHIATO_INTERNAL_UNIQUE_NAME_LINE2( name, line )
+#define MACCHIATO_INTERNAL_UNIQUE_NAME( name ) MACCHIATO_INTERNAL_UNIQUE_NAME_LINE( name, __LINE__ )
+
+namespace Macchiato {
+	std::vector<function<void>> run_registry;
+
+	void _RunAllRegisteredTestsFromMacro() {
+		// Run all of the calls made in `MACCHIATO_RUNTESTS([] { /* ... */ });
+		for(function<void> i : Macchiato::run_registry) {
+			i();
+		}
+	};
+
+	struct runtests_macro_registrar_type {
+		template <typename Func>
+		runtests_macro_registrar_type(Func&& registrant) {
+			// If they want our main, we need to save up the calls and call them in our main
+			// below any settings that may have been set
+			#if defined(MACCHIATO_MAIN)
+				run_registry.emplace_back(registrant);
+			// Otherwise just call it now because that is what they expect (synchronous)
+			#else
+				registrant();
+			#endif
+		}
+	};
+}
+
+// Defines and Constructs an object of `Macchiato::runtests_macro_registrar_type` type. This means the constructor is exectuted with __VA_ARGS__ passed in.
+// `INTERNAL_UNIQUE_NAME(run_registrar)` could be any name but this allows for easy uniqueness with it still being somewhat named
+// The double colon tells the compiler to look in the global scope for that type. This is just in case someone defines somethingof the same name where this is called
+//
+// via: https://github.com/rmartinho/nonius/blob/01115c1d4062de88ffca798545ac7c70b4ad4623/include/nonius/benchmark.h%2B%2B#L96
+#define MACCHIATO_RUNTESTS( ... ) \
+	namespace { static ::Macchiato::runtests_macro_registrar_type MACCHIATO_INTERNAL_UNIQUE_NAME(runtests_macro_registrar)(__VA_ARGS__); }
+
+// end MACCHIATO_RUNTESTS
+// --------------------------------------------
+// --------------------------------------------
+
+
+
+// Define some runners if they want to go barebones
+#if defined(MACCHIATO_MAIN)
+
+	#if defined(ARDUINO)
+
+		// Keeps track since we last sent a serial in our debug serial
+		elapsedMicros sinceSerial;
+
+		void setup() {
+			Serial.begin(9600);
+		}
+
+		void loop() {
+			// Print it out every 1 second
+			if (sinceSerial >= 1 * 1000000) {
+				Macchiato::ClearTestResults();
+				Macchiato::_RunAllRegisteredTestsFromMacro();
+				Serial.print(Macchiato::GetResultantTestOutput().value);
+
+				sinceSerial = 0;
+			}
+		}
+	#else // defined(ARDUINO)
+		#include <iostream>
+		#include <string>
+
+
+		// Standard C/C++ main entry point
+		int main (int argc, char * const argv[]) {
+			Macchiato::MacchiatoParseCLIArgs(argc, argv);
+
+			// The reset is only necessary if we were reptively runnin then outputting
+			//Macchiato::ClearTestResults();
+			Macchiato::_RunAllRegisteredTestsFromMacro();
+			std::cout << Macchiato::GetResultantTestOutput() << std::endl;
+
+			return 0;
+		}
+	#endif // defined(ARDUINO)
+
+#endif // defined(MACCHIATO_MAIN)
+
+
+
+#endif // Macchiato_h

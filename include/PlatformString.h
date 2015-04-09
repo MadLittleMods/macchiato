@@ -1,5 +1,5 @@
 // PlatformString
-// v0.3.0
+// v0.3.1
 //
 // Requires C++11. Works on the following platforms:
 //		- Most desktop environments
@@ -126,6 +126,8 @@ struct PlatformString {
 #else
 #include <string>
 #include <iostream>
+// std::min, std::max
+#include <algorithm>
 
 struct PlatformString {
 	std::string value;

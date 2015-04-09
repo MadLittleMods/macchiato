@@ -10,7 +10,9 @@ Macchiato strives to be as close and familiar as [Mocha](http://mochajs.org/)/[C
 
 # How to use/include
 
-Just add the `macchiato` folder to your include path.
+Just add the `include` folder to your include path.
+
+Macchiato is also available as a header-only library in `single_include/Macchiato.hpp`. This is a no-dependency/fully-independent version of Macchiato. We simply concatenate the dependencies together and remove the `#include *.h` to the h file dependencies
 
 ```
 #include <iostream>
@@ -35,10 +37,47 @@ describe("Foo", [&]() {
 	});
 });
 
-std::cout << Macchiato::getResultantTestOutput() << std::endl;
+int main() {
+	std::cout << Macchiato::GetResultantTestOutput() << std::endl;
+
+	return 0;
+}
 ```
 
-Macchiato is also available as a header-only library in `macchiato-header-only/MacchiatoHeaderOnly.h`. This is a no-dependency/fully-independent version of Macchiato. We simply concatenate the dependencies together and remove the `#include *.h` to the h file dependencies
+## Built in runner
+
+Macchiato has a main function that you can use to remove some boilerplate from your testing code. The code below works on desktop and Arduino.
+
+On the Arduino platform, it spits out the test results over Serial every 1 second.
+
+On the desktop platform, you can pass in command-line arguments/flags.
+
+```
+// This tells Macchiato to provide a main function. Only do this in one source/cpp file
+#define MACCHIATO_MAIN
+#include "Macchiato.h"
+using namespace Macchiato;
+
+MACCHIATO_RUNTESTS([] {
+	describe("Foo", [&]() {
+		describe("with bar", [&]() {
+			it("should baz", [&]() {
+				return expect(true).to->equal(true)->getResult();
+			});
+
+			// This test will fail because it is false != true
+			it("should qux", [&]() {
+				return expect(false).to->equal(true)->getResult();
+			});
+
+			// An `it` call without a callback is considered "pending"
+			// In other words, the test still needs to written/implemented.
+			it("should norf");
+		});
+	});
+});
+```
+
 
 
 ## Details:
@@ -61,6 +100,9 @@ Macchiato uses a `PlatformString` type that is made to be compatible on many pla
  	 - Call `it` inside of `describe` blocks
  - `expect(Ta actual)`: (BDD)
 
+ - `PlatformString Macchiato::GetResultantTestOutput()`: Returns the test output including a summary
+ - `void Macchiato::ClearTestResults();`: Clears the test output and resets the test counts. Useful for multiple or subsequent calls that need to be separated.
+
 ```
 #include <iostream>
 #include "Macchiato.h"
@@ -72,7 +114,7 @@ describe("Box", [&]() {
 	});
 });
 
-std::cout << Macchiato::getResultantTestOutput() << std::endl;
+std::cout << Macchiato::GetResultantTestOutput() << std::endl;
 ```
 
 
@@ -176,6 +218,26 @@ describe("Some numbers", [&]() {
  	 - `indentToken`: PlatformString - The indentation string/token every time we go a level deeper
  	 	 - Default: `"\t"`
 
+
+# CLI flags
+
+If you are using the Macchiato main runner these commands will be parsed automattically.
+
+ - `-no-color`: Remove the ANSI color escape codes from the resultant output (plain text)
+
+If you are using your own `int main()` (default) and want to have Macchiato parse the commands, just pass in `argc` and `argv` to `Macchiato::MacchiatoParseCLIArgs(argc, argv)`.
+
+```
+int main (int argc, char * const argv[]) {
+	// Parse the incoming arguments
+	Macchiato::MacchiatoParseCLIArgs(argc, argv);
+	
+	// Do some tests... describe(...) { it(...) {}; };
+	
+	// Output the test results
+	std::cout << Macchiato::GetResultantTestOutput() << std::endl;
+};
+```
 
 
 
