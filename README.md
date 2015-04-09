@@ -133,7 +133,7 @@ These provide actual functionality in the chain.
 Plugin-like functionality is supported via `Macchiato::MacchiatoPlugin` which can be used in `expect().satisify(Macchiato::MacchiatoPlugin plugin, Te expected)`.
 
 ````
-MacchiatoPlugin(
+MacchiatoPlugin<typename Ta, typename Te = Ta>(
 	function<bool, Ta, Te> testFunc,
 	function<PlatformString, Ta, Te, testFlags> failMessageFunc
 );
