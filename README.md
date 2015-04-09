@@ -254,5 +254,5 @@ We currently do not support the full Mocha.js API. Missing TDD and some BDD `exp
  	 - Macchiato C++: `[&](){ /*...*/ }`
  	 - Mocha JS: `function() { /*...*/ }`
  - Test chaining syntax is different
- 	 - Macchiato C++: `expect<int>(3).to->equal(3)->getResults();`
+ 	 - Macchiato C++: `expect(3).to->equal(3)->getResults();`
  	 - Mocha JS: `expect(3).to.equal(3);`
