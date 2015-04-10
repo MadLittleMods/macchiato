@@ -6,7 +6,7 @@ Macchiato strives to be as close and familiar as [Mocha](http://mochajs.org/)/[C
 
 ![](http://i.imgur.com/fhGebYm.png)
 
-## Latest Version: 0.6.1
+## Latest Version: 0.6.5
 
 # How to use/include
 
