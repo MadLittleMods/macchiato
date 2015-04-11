@@ -1,9 +1,9 @@
-// This tells Macchiato to provide a main function. Only do this in one source/cpp file
-#define MACCHIATO_MAIN
+#include <iostream>
 #include "Macchiato.h"
+// Optionally use the namespace to do `describe` instead of `Macchiato::describe`, etc
 using namespace Macchiato;
 
-MACCHIATO_RUNTESTS([] {
+int main() {
 	describe("Foo", [&]() {
 		describe("with bar", [&]() {
 			it("should baz", [&]() {
@@ -20,4 +20,8 @@ MACCHIATO_RUNTESTS([] {
 			it("should norf");
 		});
 	});
-});
+
+	std::cout << Macchiato::GetResultantTestOutput() << std::endl;
+
+	return 0;
+}

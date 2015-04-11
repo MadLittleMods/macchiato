@@ -14,36 +14,6 @@ Just add the `include` folder to your include path.
 
 Macchiato is also available as a header-only library in `single_include/Macchiato.hpp`. This is a no-dependency/fully-independent version of Macchiato. We simply concatenate the dependencies together and remove the `#include *.h` to the h file dependencies
 
-```
-#include <iostream>
-#include "Macchiato.h"
-// Optionally use the namespace to do `describe` instead of `Macchiato::describe`, etc
-using namespace Macchiato;
-
-describe("Foo", [&]() {
-	describe("with bar", [&]() {
-		it("should baz", [&]() {
-			return expect(true).to->equal(true)->getResult();
-		});
-
-		// This test will fail because it is false != true
-		it("should qux", [&]() {
-			return expect(false).to->equal(true)->getResult();
-		});
-
-		// An `it` call without a callback is considered "pending"
-		// In other words, the test still needs to written/implemented.
-		it("should norf");
-	});
-});
-
-int main() {
-	std::cout << Macchiato::GetResultantTestOutput() << std::endl;
-
-	return 0;
-}
-```
-
 ## Built in runner
 
 Macchiato has a main function that you can use to remove some boilerplate from your testing code. The code below works on desktop and Arduino.
@@ -77,6 +47,13 @@ MACCHIATO_RUNTESTS([] {
 	});
 });
 ```
+
+## Own `main`
+
+You can also use your own `main` function. Check `examples/example2.cpp` for a complete example
+
+Just call the `describe`/`it` functions in your main loop or wherever. No need for the `MACCHIATO_RUNTESTS` macro unless you want to do things there still.
+
 
 
 
