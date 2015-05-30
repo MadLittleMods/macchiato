@@ -22,7 +22,7 @@ On the Arduino platform, it spits out the test results over Serial every 1 secon
 
 On the desktop platform, you can pass in command-line arguments/flags.
 
-```
+```cpp
 // This tells Macchiato to provide a main function. Only do this in one source/cpp file
 #define MACCHIATO_MAIN
 #include "Macchiato.h"
@@ -80,7 +80,7 @@ Macchiato uses a `PlatformString` type that is made to be compatible on many pla
  - `PlatformString Macchiato::GetResultantTestOutput()`: Returns the test output including a summary
  - `void Macchiato::ClearTestResults();`: Clears the test output and resets the test counts. Useful for multiple or subsequent calls that need to be separated.
 
-```
+```cpp
 #include <iostream>
 #include "Macchiato.h"
 using namespace Macchiato;
@@ -151,7 +151,7 @@ These provide actual functionality in the chain.
 
 Plugin-like functionality is supported via `Macchiato::MacchiatoPlugin` which can be used in `expect().satisify(Macchiato::MacchiatoPlugin plugin, Te expected)`.
 
-````
+```cpp
 MacchiatoPlugin<typename Ta, typename Te = Ta>(
 	function<bool, Ta, Te> testFunc,
 	function<PlatformString, Ta, Te, testFlags> failMessageFunc
@@ -160,7 +160,7 @@ MacchiatoPlugin<typename Ta, typename Te = Ta>(
 
 ### Example
 
-```
+```cpp
 #include "Macchiato.h"
 using namespace Macchiato;
 
@@ -204,7 +204,7 @@ If you are using the Macchiato main runner these commands will be parsed automat
 
 If you are using your own `int main()` (default) and want to have Macchiato parse the commands, just pass in `argc` and `argv` to `Macchiato::MacchiatoParseCLIArgs(argc, argv)`.
 
-```
+```cpp
 int main (int argc, char * const argv[]) {
 	// Parse the incoming arguments
 	Macchiato::MacchiatoParseCLIArgs(argc, argv);
