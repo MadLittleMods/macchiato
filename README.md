@@ -50,7 +50,7 @@ MACCHIATO_RUNTESTS([] {
 
 ## Own `main`
 
-You can also use your own `main` function. Check `examples/example2.cpp` for a complete example
+You can also use your own `main` function. Check [`examples/example2.cpp`](https://github.com/MadLittleMods/macchiato/blob/master/examples/example2.cpp) for a complete example
 
 Just call the `describe`/`it` functions in your main loop or wherever. No need for the `MACCHIATO_RUNTESTS` macro unless you want to do things there still.
 
