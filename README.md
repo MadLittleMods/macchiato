@@ -1,5 +1,7 @@
 # Macchiato
 
+[![Join the chat at https://gitter.im/MadLittleMods/macchiato](https://badges.gitter.im/MadLittleMods/macchiato.svg)](https://gitter.im/MadLittleMods/macchiato?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 C++ test framework for desktop and Arduino.
 
 Macchiato strives to be as close and familiar as [Mocha](http://mochajs.org/)/[Chai](http://chaijs.com/).
