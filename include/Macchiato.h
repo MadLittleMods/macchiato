@@ -204,10 +204,10 @@ namespace Macchiato {
 
 		_MacchiatoUtil.logTestResult(testResult.didPass ? _MacchiatoUtil.TestResultType::Pass : _MacchiatoUtil.TestResultType::Fail);
 
-		PlatformString message = _MacchiatoUtil.generateCurrentChildDepthString() + 
-			(testResult.didPass ? _MacchiatoUtil.wrapInAnsiGreen("Pass") : _MacchiatoUtil.wrapInAnsiRed("Fail")) + ": " + 
-			testDescription + 
-			(testResult.didPass ? "" : "\n" + _MacchiatoUtil.generateCurrentChildDepthString() + MacchiatoSettings.indentToken + testResult.message) + 
+		PlatformString message = _MacchiatoUtil.generateCurrentChildDepthString() +
+			(testResult.didPass ? _MacchiatoUtil.wrapInAnsiGreen("Pass") : _MacchiatoUtil.wrapInAnsiRed("Fail")) + ": " +
+			testDescription +
+			(testResult.didPass ? "" : "\n" + _MacchiatoUtil.generateCurrentChildDepthString() + MacchiatoSettings.indentToken + testResult.message) +
 			"\n";
 
 		_MacchiatoUtil.log(message);
@@ -217,9 +217,9 @@ namespace Macchiato {
 	// expect: BDD
 	template <typename Ta>
 	struct expect_type {
-		
+
 		expect_type(Ta actual) : actual(actual) { };
-		
+
 
 
 		template <typename Te>
@@ -228,14 +228,14 @@ namespace Macchiato {
 				this->actual == expected,
 				PlatformString("Expected ") + PlatformString(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + PlatformString(expected)
 			);
-			
+
 			return this;
 		};
 		template <typename Te>
 		expect_type* eql(Te expected) {
 			return this->equal(expected);
 		};
-		
+
 		expect_type* closeTo(double expected) {
 			return this->closeTo(expected, 0.0001);
 		};
@@ -244,7 +244,7 @@ namespace Macchiato {
 				fabs(this->actual - expected) <= tolerance,
 				PlatformString("Expected ") + PlatformString(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + PlatformString(expected) + " within tolerance of " + PlatformString(tolerance)
 			);
-			
+
 			return this;
 		};
 
@@ -253,7 +253,7 @@ namespace Macchiato {
 				this->actual > lower && this->actual < upper,
 				PlatformString("Expected ") + PlatformString(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be above " + PlatformString(lower) + " and below " + PlatformString(upper)
 			);
-			
+
 			return this;
 		};
 
@@ -263,7 +263,7 @@ namespace Macchiato {
 				this->actual > expected,
 				PlatformString("Expected ") + PlatformString(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than " + PlatformString(expected)
 			);
-			
+
 			return this;
 		};
 		expect_type* gt(double expected) {
@@ -278,7 +278,7 @@ namespace Macchiato {
 				this->actual >= expected,
 				PlatformString("Expected ") + PlatformString(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than or equal to " + PlatformString(expected)
 			);
-			
+
 			return this;
 		};
 		expect_type* gte(double expected) {
@@ -290,7 +290,7 @@ namespace Macchiato {
 				this->actual < expected,
 				PlatformString("Expected ") + PlatformString(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be lesser than " + PlatformString(expected)
 			);
-			
+
 			return this;
 		};
 		expect_type* lt(double expected) {
@@ -305,7 +305,7 @@ namespace Macchiato {
 				this->actual <= expected,
 				PlatformString("Expected ") + PlatformString(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be less than or equal to " + PlatformString(expected)
 			);
-			
+
 			return this;
 		};
 		expect_type* lte(double expected) {
@@ -314,7 +314,7 @@ namespace Macchiato {
 
 		expect_type* satisfy(function<bool, Ta> testFunc) {
 			bool testResultBool = testFunc(this->actual);
-			
+
 			return this->satisfy(
 				testResultBool,
 				PlatformString("Expected ") + PlatformString(this->actual) + " to " + (this->flags.negate ? "not " : "") + "satisfy the given test"
@@ -323,14 +323,14 @@ namespace Macchiato {
 		expect_type* satisfy(function<bool, Ta> testFunc, function<PlatformString, Ta, testFlags> failMessageFunc) {
 			bool testResultBool = testFunc(this->actual);
 			PlatformString failMessage = failMessageFunc(this->actual, this->flags);
-			
+
 			return this->satisfy(testResultBool, failMessage);
 		};
 		template <typename Te>
 		expect_type* satisfy(MacchiatoPlugin<Ta, Te> plugin, Te expected) {
 			bool testResultBool = plugin.testFunc(this->actual, expected);
 			PlatformString failMessage = plugin.failMessageFunc(this->actual, expected, this->flags);
-			
+
 			return this->satisfy(testResultBool, failMessage);
 		};
 		expect_type* satisfy(bool testResultBool, PlatformString failMessage) {
@@ -338,11 +338,11 @@ namespace Macchiato {
 				testResultBool,
 				failMessage
 			);
-			
+
 			return this;
 		};
-		
-		
+
+
 
 
 		class MemberLogicClass {
@@ -350,11 +350,11 @@ namespace Macchiato {
 			function<void, expect_type*> getterFunc;
 			public:
 				MemberLogicClass(expect_type *i, function<void, expect_type*> getterFunc) : expectPointer(i), getterFunc(getterFunc) {};
-				
+
 				// Setter
 				expect_type* operator = (const expect_type i) {
 					return this->expectPointer = (expect_type*)&i;
-					
+
 				};
 				// Setter
 				expect_type* operator = (const expect_type *i) {
@@ -363,7 +363,7 @@ namespace Macchiato {
 				// Getter
 				expect_type* operator -> () {
 					this->getterFunc(this->expectPointer);
-					return this->expectPointer; 
+					return this->expectPointer;
 				};
 				// Getter
 				operator expect_type* () const {
@@ -380,7 +380,7 @@ namespace Macchiato {
 		}};
 
 
-		
+
 		// Provided as chainable getters to improve the readability of your assertions.
 		// They do not provide testing capabilities.
 		expect_type* to = this;
@@ -397,24 +397,24 @@ namespace Macchiato {
 		expect_type* at = this;
 		expect_type* of = this;
 		expect_type* same = this;
-		
-		
-		
+
+
+
 		TestResult getResult() {
 			return this->testResult;
 		};
-		
+
 		operator bool() {
 			return this->testResult.didPass;
 		};
 
 
-		protected: 
+		protected:
 			Ta actual;
 			testFlags flags;
-			
+
 			TestResult testResult;
-			
+
 			void addTestResult(bool testResultBool, PlatformString message) {
 				bool didPass = (this->flags.negate ? !testResultBool : testResultBool);
 
@@ -428,7 +428,7 @@ namespace Macchiato {
 					this->testResult.message += message;
 				}
 
-				
+
 
 				// Reset the flag
 				this->flags.negate = false;
@@ -449,7 +449,7 @@ namespace Macchiato {
 		// Some CLI options/flags
 		for(int i = 0; i < argc; i++) {
 			//std::cout << argv[i] << std::endl;
-			if(strcmp(argv[i], "-no-color") == 0 || strcmp(argv[i], "--no-color") == 0) {
+			if(strcmp(argv[i], "--no-color") == 0) {
 				Macchiato::MacchiatoSettings.useAnsiColor = false;
 			}
 		}

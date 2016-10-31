@@ -202,7 +202,7 @@ describe("Some numbers", [&]() {
 
 If you are using the Macchiato main runner these commands will be parsed automattically.
 
- - `-no-color`: Remove the ANSI color escape codes from the resultant output (plain text)
+ - `--no-color`: Remove the ANSI color escape codes from the resultant output (plain text)
 
 If you are using your own `int main()` (default) and want to have Macchiato parse the commands, just pass in `argc` and `argv` to `Macchiato::MacchiatoParseCLIArgs(argc, argv)`.
 
@@ -210,9 +210,9 @@ If you are using your own `int main()` (default) and want to have Macchiato pars
 int main (int argc, char * const argv[]) {
 	// Parse the incoming arguments
 	Macchiato::MacchiatoParseCLIArgs(argc, argv);
-	
+
 	// Do some tests... describe(...) { it(...) {}; };
-	
+
 	// Output the test results
 	std::cout << Macchiato::GetResultantTestOutput() << std::endl;
 };
