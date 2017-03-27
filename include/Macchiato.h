@@ -20,6 +20,9 @@
 // fabs
 #include <cmath>
 
+//strcmp
+#include <cstring>
+
 #include "functionSig.h"
 #include "PlatformString.h"
 
