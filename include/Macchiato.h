@@ -19,7 +19,6 @@
 
 // fabs
 #include <cmath>
-
 //strcmp
 #include <cstring>
 
